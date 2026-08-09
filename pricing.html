@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <link href="https://cdn.prod.website-files.com" rel="preconnect" crossorigin="anonymous" />
+  <title>Pricing &amp; Estimate Calculator - FCV Restoration &amp; Construction</title>
+  <meta content="Build a ballpark estimate for your remodeling or restoration project in a few clicks, then request an exact quote from FCV Restoration &amp; Construction." name="description" />
+  <meta content="Pricing &amp; Estimate Calculator - FCV Restoration &amp; Construction" property="og:title" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+
+  <link href="https://cdn.prod.website-files.com/698316aecf20e0a251148dc6/css/kontrek.webflow.shared.b2e22e0d2.css" rel="stylesheet" type="text/css" integrity="sha384-suIuDSsoU4zZDcXhpfSXO6g7xiEC5RhoZJblQf4DD9yPJDJqGO+qaZkplNOrEAFB" crossorigin="anonymous" />
+
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin="anonymous" />
+  <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    WebFont.load({ google: { families: ['Bebas Neue:300,400,500,600,700', 'Inter Tight:300,400,500,600,700'] } });
+  </script>
+  <script type="text/javascript">
+    !(function (o, c) {
+      var n = c.documentElement, t = ' w-mod-';
+      ((n.className += t + 'js'), ('ontouchstart' in o || (o.DocumentTouch && c instanceof DocumentTouch)) && (n.className += t + 'touch'));
+    })(window, document);
+  </script>
+  <link href="./Images/FCV Favicon.png" rel="shortcut icon" type="image/x-icon" />
+  <link href="./Images/FCV Favicon.png" rel="apple-touch-icon" />
+
+  <style>
+    body{ overflow-x:hidden !important; }
+    .w-webflow-badge{ display:none !important; }
+
+    /* =========================================================
+       PRICING PAGE LAYOUT
+       Every colour, font and spacing value below references the
+       site's existing custom properties. Nothing new introduced.
+       ========================================================= */
+
+    .fda-pricing-hero{
+      padding-top: 13rem;
+      padding-bottom: var(--_gap---section-gap-small);
+      background-image: linear-gradient(0deg,#0b0b0b,#0b0b0b00 67%),
+        linear-gradient(45deg,#191818f2 7%,#3c3b3bb3 26%,#1918181a 40% 54%,#191818cc 69%),
+        url("https://cdn.prod.website-files.com/698316aecf20e0a251148dc6/698316aecf20e0a251148e8a_kontrek-service-hero-background.webp");
+      background-position: 0 0, 0 0, 50%;
+      background-repeat: repeat, repeat, no-repeat;
+      background-size: auto, auto, cover;
+    }
+    .fda-pricing-hero-heading{ max-width: 42rem; }
+    .fda-pricing-hero-sub{ max-width: 34rem; margin-top: 1.875rem; }
+
+    /* --- calculator shell --- */
+    .fda-calc{
+      padding-top: var(--_gap---section-gap-small);
+      padding-bottom: var(--_gap---section-gap-big);
+      background-color: var(--white);
+    }
+    .fda-calc-layout{ display:flex; align-items:flex-start; gap:3.125rem; }
+    .fda-calc-main{ flex:1; min-width:0; }
+    .fda-calc-rail{ flex:0 0 23rem; position:sticky; top:7.5rem; }
+
+    .fda-calc-step{ margin-bottom: var(--_gap---gap-medium); }
+    .fda-calc-step-head{
+      display:flex; align-items:baseline; gap:.9375rem;
+      padding-bottom:1rem; margin-bottom:1.5625rem;
+      border-bottom:.0625rem solid #0a0f1533;
+    }
+    .fda-calc-step-num{
+      font-family:var(--_font-family---primary-font);
+      color:var(--golden-amber);
+      font-size:var(--_font-details---font-size--heading-six);
+      letter-spacing:var(--_font-details---font-letter-spacing--heading-six);
+    }
+
+    /* segmented choice buttons */
+    .fda-calc-choices{ display:grid; grid-template-columns:repeat(3,1fr); gap:.625rem; }
+    .fda-calc-choice{
+      background-color:var(--soft-sandstone);
+      border:.0625rem solid transparent;
+      padding:1.25rem 1.25rem 1.125rem;
+      cursor:pointer; text-align:left;
+      display:flex; flex-direction:column; gap:.25rem;
+      transition:background-color .2s ease, border-color .2s ease;
+      font-family:var(--_font-family---secondary-font);
+    }
+    .fda-calc-choice:hover{ background-color:var(--warm-porcelain); }
+    .fda-calc-choice[aria-pressed="true"]{
+      background-color:var(--white);
+      border-color:var(--midnight-navy);
+    }
+    .fda-calc-choice-label{
+      font-family:var(--_font-family---primary-font);
+      color:var(--midnight-navy);
+      font-size:var(--_font-details---font-size--heading-six);
+      letter-spacing:var(--_font-details---font-letter-spacing--heading-six);
+    }
+    .fda-calc-choice-note{
+      font-size:.8125rem; color:var(--charcoal-ash); line-height:1.4;
+    }
+
+    /* service category cards */
+    .fda-calc-cats{ display:flex; flex-direction:column; gap:.625rem; }
+    .fda-calc-cat{ border:.0625rem solid #0a0f1533; background-color:var(--white); }
+    .fda-calc-cat.is-open{ border-color:var(--midnight-navy); }
+    .fda-calc-cat-toggle{
+      width:100%; display:flex; align-items:center; justify-content:space-between;
+      gap:1rem; padding:1.375rem 1.5625rem; cursor:pointer;
+      background:none; border:0; text-align:left;
+      font-family:var(--_font-family---secondary-font);
+    }
+    .fda-calc-cat-toggle:hover{ background-color:var(--soft-sandstone); }
+    .fda-calc-cat-name{
+      font-family:var(--_font-family---primary-font);
+      color:var(--midnight-navy);
+      font-size:var(--_font-details---font-size--heading-five);
+      letter-spacing:var(--_font-details---font-letter-spacing--heading-five);
+    }
+    .fda-calc-cat-right{ display:flex; align-items:center; gap:.9375rem; flex:0 0 auto; }
+    .fda-calc-cat-count{
+      font-size:.8125rem; color:var(--charcoal-ash); white-space:nowrap;
+    }
+    .fda-calc-cat-count.is-active{ color:var(--midnight-navy); }
+    .fda-calc-plus{ position:relative; width:.875rem; height:.875rem; flex:0 0 auto; }
+    .fda-calc-plus::before,
+    .fda-calc-plus::after{
+      content:""; position:absolute; background-color:var(--midnight-navy);
+      top:50%; left:50%; transform:translate(-50%,-50%);
+      transition:opacity .2s ease;
+    }
+    .fda-calc-plus::before{ width:100%; height:.125rem; }
+    .fda-calc-plus::after{ width:.125rem; height:100%; }
+    .fda-calc-cat.is-open .fda-calc-plus::after{ opacity:0; }
+
+    .fda-calc-cat-body{ display:none; padding:0 1.5625rem 1.5625rem; }
+    .fda-calc-cat.is-open .fda-calc-cat-body{ display:block; }
+    .fda-calc-scope{
+      display:flex; align-items:flex-start; gap:.9375rem;
+      padding:.8125rem 0; border-top:.0625rem solid #0a0f151a;
+    }
+    .fda-calc-scope-label{
+      flex:1; cursor:pointer; display:flex; flex-direction:column; gap:.125rem;
+      font-family:var(--_font-family---secondary-font);
+      color:var(--midnight-navy);
+      font-size:var(--_font-details---font-size--body-text);
+    }
+    .fda-calc-scope input[type="checkbox"]{
+      width:1.125rem; height:1.125rem; margin-top:.1875rem; flex:0 0 auto;
+      accent-color:#0a0f15; cursor:pointer;
+    }
+    .fda-calc-qty{
+      display:none; align-items:center; gap:.5rem; flex:0 0 auto;
+    }
+    .fda-calc-scope.is-checked .fda-calc-qty{ display:flex; }
+    .fda-calc-qty input{
+      width:6rem; padding:.4375rem .625rem;
+      border:.0625rem solid #0a0f1533; background-color:var(--white);
+      font-family:var(--_font-family---secondary-font);
+      color:var(--midnight-navy); font-size:.875rem;
+    }
+    .fda-calc-qty-unit{ font-size:.75rem; color:var(--charcoal-ash); white-space:nowrap; }
+
+    /* estimate rail */
+    .fda-calc-panel{ background-color:var(--midnight-navy); padding:2.1875rem; }
+    .fda-calc-range{
+      font-family:var(--_font-family---primary-font);
+      color:var(--white); line-height:.95;
+      font-size:clamp(28px,3.2vw,46px);
+      margin:.9375rem 0 .3125rem;
+    }
+    .fda-calc-range.is-empty{ color:#ffffff59; }
+    .fda-calc-range-note{ color:var(--soft-silver-gray); font-size:.8125rem; line-height:1.5; }
+    .fda-calc-lines{
+      margin-top:1.5625rem; padding-top:1.25rem;
+      border-top:.0625rem solid #ffffff33;
+      display:flex; flex-direction:column; gap:.5rem;
+      max-height:16rem; overflow-y:auto;
+    }
+    .fda-calc-line{
+      display:flex; justify-content:space-between; gap:1rem;
+      font-size:.8125rem; color:var(--soft-silver-gray);
+    }
+    .fda-calc-line span:last-child{ color:var(--white); white-space:nowrap; }
+    .fda-calc-panel-actions{ margin-top:1.875rem; }
+    .fda-calc-reset{
+      background:none; border:0; padding:.625rem 0 0; cursor:pointer;
+      font-family:var(--_font-family---secondary-font);
+      color:var(--soft-silver-gray); font-size:.8125rem;
+      text-decoration:underline; text-underline-offset:.1875rem;
+    }
+    .fda-calc-reset:hover{ color:var(--golden-amber); }
+
+    /* --- quote form --- */
+    .fda-quote{
+      padding-top:var(--_gap---section-gap-small);
+      padding-bottom:var(--_gap---section-gap-big);
+      background-color:var(--soft-sandstone);
+      scroll-margin-top:6.25rem;
+    }
+    .fda-quote-layout{ display:flex; align-items:flex-start; gap:3.75rem; }
+    .fda-quote-left{ flex:0 0 26rem; }
+    .fda-quote-right{ flex:1; min-width:0; }
+    .fda-quote-summary{
+      background-color:var(--white); padding:1.875rem; margin-top:2.5rem;
+    }
+    .fda-quote-summary-range{
+      font-family:var(--_font-family---primary-font);
+      color:var(--midnight-navy); font-size:1.875rem; line-height:1;
+      margin:.5rem 0 .75rem;
+    }
+    .fda-quote-grid{
+      display:grid; grid-template-columns:1fr 1fr; gap:2.25rem 1.875rem;
+    }
+    .fda-quote-field{ display:flex; flex-direction:column; }
+    .fda-quote-field.is-full{ grid-column:1 / -1; }
+    .fda-quote-field > label{
+      font-family:var(--_font-family---primary-font);
+      color:var(--midnight-navy);
+      font-size:var(--_font-details---font-size--heading-six);
+      letter-spacing:var(--_font-details---font-letter-spacing--heading-six);
+      margin-bottom:.5rem; font-weight:400;
+    }
+    .fda-quote-field .fda-text-field,
+    .fda-quote-field .fda-select-field,
+    .fda-quote-field .fda-textarea{ text-transform:none; }
+    .fda-quote-req{ color:var(--golden-amber); }
+    .fda-quote-error{
+      display:none; color:#a33; font-size:.8125rem; margin-top:.375rem;
+    }
+    .fda-quote-field.has-error .fda-quote-error{ display:block; }
+    .fda-quote-field.has-error .fda-text-field,
+    .fda-quote-field.has-error .fda-select-field,
+    .fda-quote-field.has-error .fda-textarea{ border-bottom-color:#a33; }
+    .fda-quote-consent{
+      grid-column:1 / -1; display:flex; align-items:flex-start; gap:.75rem;
+    }
+    .fda-quote-consent input{
+      width:1.125rem; height:1.125rem; margin-top:.1875rem; accent-color:#0a0f15;
+    }
+    .fda-quote-consent label{ font-size:.875rem; color:var(--charcoal-ash); line-height:1.55; }
+    .fda-quote-actions{ grid-column:1 / -1; display:flex; align-items:center; gap:1.5625rem; flex-wrap:wrap; }
+    .fda-quote-status{ font-size:.875rem; line-height:1.5; }
+    .fda-quote-status.is-ok{ color:#2c6e49; }
+    .fda-quote-status.is-bad{ color:#a33; }
+    .fda-hp{ position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+
+    .fda-quote-done{
+      display:none; background-color:var(--white); padding:3.125rem;
+      text-align:center;
+    }
+    .fda-quote-done.is-visible{ display:block; }
+    .fda-quote-form.is-hidden{ display:none; }
+
+    /* --- what affects price --- */
+    .fda-factors{
+      padding-top:var(--_gap---gap-medium);
+      padding-bottom:var(--_gap---section-gap-small);
+      background-color:var(--white);
+    }
+    .fda-factors-grid{
+      display:grid; grid-template-columns:repeat(3,1fr); gap:1.875rem; margin-top:2.5rem;
+    }
+    .fda-factor{
+      background-color:var(--soft-sandstone); padding:2.1875rem;
+      display:flex; flex-direction:column; gap:.625rem;
+    }
+
+    /* focus + motion */
+    .fda-calc-choice:focus-visible,
+    .fda-calc-cat-toggle:focus-visible,
+    .fda-calc-reset:focus-visible,
+    .fda-quote-field input:focus-visible,
+    .fda-quote-field select:focus-visible,
+    .fda-quote-field textarea:focus-visible,
+    .fda-calc-scope input:focus-visible,
+    a:focus-visible, button:focus-visible{
+      outline:.125rem solid var(--golden-amber); outline-offset:.1875rem;
+    }
+    @media (prefers-reduced-motion: reduce){
+      *{ transition-duration:.01ms !important; animation-duration:.01ms !important; }
+      html{ scroll-behavior:auto; }
+    }
+    html{ scroll-behavior:smooth; }
+
+    @media (max-width:1100px){
+      .fda-calc-layout{ flex-direction:column; }
+      .fda-calc-rail{ position:static; flex:1 1 auto; width:100%; order:-1; }
+      .fda-quote-layout{ flex-direction:column; gap:2.5rem; }
+      .fda-quote-left{ flex:1 1 auto; width:100%; }
+    }
+    @media (max-width:767px){
+      .fda-pricing-hero{ padding-top:10rem; }
+      .fda-calc-choices{ grid-template-columns:1fr; }
+      .fda-quote-grid{ grid-template-columns:1fr; }
+      .fda-factors-grid{ grid-template-columns:1fr; }
+      .fda-calc-scope{ flex-wrap:wrap; }
+      .fda-calc-qty{ padding-left:2.0625rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div data-w-id="386b64da-e5cc-623d-0152-15db2d2032c1" data-animation="default" data-collapse="medium" data-duration="400" data-easing="ease" data-easing2="ease" role="banner" class="fda-navbar-main fda-navbar-border-transparent w-nav">
+      <div class="fda-container-medium fda-tab-gutter-off w-container">
+        <div class="w-layout-hflex fda-navbar-content">
+          <a href="/" aria-current="page" class="fda-padding-off fda-left-gap w-nav-brand w--current"
+            ><div><img width="94" height="31" alt="Constriq-main-icon-white" src="./Images/FCV Logo - Dark Mode.png" loading="lazy" class="fda-logo" /></div
+          ></a>
+          <nav role="navigation" class="fda-nav-menu w-nav-menu">
+            <div class="fda-nav-wrapper">
+              <div>
+                <div class="fda-navmenu-wrapper">
+                  <a href="/" class="fda-menu-link w-inline-block"><div class="fda-menu-text fda-text-color-white fda-change-text-size fda-change-text-color">Home</div></a>
+                  <a href="/about-us" class="fda-menu-link w-inline-block"><div class="fda-menu-text fda-text-color-white fda-change-text-size fda-change-text-color">About us</div></a>
+                  <a href="/pricing" class="fda-menu-link w-inline-block"><div class="fda-menu-text fda-text-color-white fda-change-text-size fda-change-text-color">Pricing</div></a>
+                  <a href="/services" class="fda-menu-link w-inline-block"><div class="fda-menu-text fda-text-color-white fda-change-text-size fda-change-text-color">Services</div></a>
+                  <a href="/contact" class="fda-menu-link w-inline-block"><div class="fda-menu-text fda-text-color-white fda-change-text-size fda-change-text-color">Contact</div></a>
+                </div>
+                <div class="w-layout-hflex fda-nav-responsive-button-wrap">
+                  <div class="fda-nav-resposive-button">
+                    <a data-w-id="4d573006-709b-6a8e-9ad4-ca1a78da964f" href="/pricing" class="fda-button-main fda-border-transparent fda-full-width w-inline-block"
+                      ><div class="fda-button-wrapper fda-full-width">
+                        <div class="fda-button-inner-wrapper fda-1 fda-full-width">
+                          <div class="fda-button-text-wrapper"><div class="fda-button-text">get satrted now</div></div>
+                          <div class="fda-button-text-arrow-wrapper"><img width="10" height="10" alt="" src="./Images/Button Arrow.svg" loading="lazy" class="fda-button-text-arrow" /></div>
+                        </div>
+                        <div class="fda-button-inner-wrapper fda-2 fda-full-width">
+                          <div class="fda-button-text-wrapper"><div class="fda-button-text fda-text-color-golden">get satrted now</div></div>
+                          <div class="fda-button-text-arrow-wrapper"><img width="10" height="10" alt="" src="./Images/Golden Arrow.svg" loading="lazy" class="fda-button-text-arrow" /></div>
+                        </div>
+                      </div>
+                      <div class="fda-button-black-overlay-corner fda-change-size fda-change-position"></div
+                    ></a>
+                  </div>
+                  <div class="fda-nav-resposive-button">
+                    <a data-w-id="4d573006-709b-6a8e-9ad4-ca1a78da964f" href="/contact" class="fda-button-main fda-border-transparent fda-full-width w-inline-block"
+                      ><div class="fda-button-wrapper fda-full-width">
+                        <div class="fda-button-inner-wrapper fda-1 fda-full-width">
+                          <div class="fda-button-text-wrapper"><div class="fda-button-text">contact us</div></div>
+                          <div class="fda-button-text-arrow-wrapper"><img width="10" height="10" alt="" src="./Images/Button Arrow.svg" loading="lazy" class="fda-button-text-arrow" /></div>
+                        </div>
+                        <div class="fda-button-inner-wrapper fda-2 fda-full-width">
+                          <div class="fda-button-text-wrapper"><div class="fda-button-text fda-text-color-golden">contact us</div></div>
+                          <div class="fda-button-text-arrow-wrapper"><img width="10" height="10" alt="" src="./Images/Golden Arrow.svg" loading="lazy" class="fda-button-text-arrow" /></div>
+                        </div>
+                      </div>
+                      <div class="fda-button-black-overlay-corner fda-change-size fda-change-position"></div
+                    ></a>
+                  </div>
+                </div>
+              </div>
+              <div class="fda-nav-bottom-wrap">
+                <div class="w-layout-vflex fda-nav-description-v1">
+                  <div class="w-layout-hflex fda-footer-social-top">
+                    <div class="fda-sub-text fda-text-color-golden">Follow us</div>
+                    <div class="fda-small-dash"></div>
+                  </div>
+                  <div class="w-layout-hflex fda-footer-social-icons-wrap">
+                    <a href="https://www.facebook.com/" target="_blank" class="fda-social-box w-inline-block"
+                      ><div class="w-layout-vflex fda-footer-icon-wrap"><img width="9" height="15" alt="" src="./Images/Facebook Icon.svg" loading="lazy" /></div></a
+                    ><a href="https://www.linkedin.com/" target="_blank" class="fda-social-box w-inline-block"
+                      ><div class="w-layout-vflex fda-footer-icon-wrap"><img width="9" height="15" alt="" src="./Images/Linkedin Icon.svg" loading="lazy" class="fda-icon-v1" /></div></a
+                    ><a href="https://www.instagram.com/" target="_blank" class="fda-social-box w-inline-block"
+                      ><div class="w-layout-vflex fda-footer-icon-wrap"><img width="9" height="15" alt="" src="./Images/Instagram Icon.svg" loading="lazy" /></div></a
+                    ><a href="https://x.com/" target="_blank" class="fda-social-box w-inline-block"
+                      ><div class="w-layout-vflex fda-footer-icon-wrap"><img width="9" height="15" alt="" src="./Images/Twitter Icon.svg" loading="lazy" /></div
+                    ></a>
+                  </div>
+                </div>
+                <div class="w-layout-hflex fda-nav-description-v2">
+                  <div class="w-layout-hflex fda-nav-card-v1">
+                    <div class="w-layout-vflex fda-nav-icon-wrap-v1">
+                      <div class="fda-nav-icon-v1">
+                        <div><img width="26" loading="lazy" alt="" src="./Images/Email Icon.svg" /></div>
+                      </div>
+                    </div>
+                    <div class="fda-nav-description-v2-text-wrap">
+                      <div class="fda-text-color-golden">For more information</div>
+                      <a href="tel:5550100134" class="fda-text-style-h5 fda-text-color-golden">(555) 010-0134</a>
+                    </div>
+                  </div>
+                  <div class="w-layout-hflex fda-nav-card-v1">
+                    <div class="w-layout-vflex fda-nav-icon-wrap-v1 fda-radius-tiny">
+                      <div class="fda-nav-icon-v1">
+                        <div><img width="26" loading="lazy" alt="" src="./Images/Call Icon.svg" /></div>
+                      </div>
+                    </div>
+                    <div class="fda-nav-description-v2-text-wrap">
+                      <div class="fda-text-color-golden">Email</div>
+                      <a href="mailto:quote@fcvrestoration.com" class="fda-text-style-h5 fda-text-color-golden">quote@fcvrestoration.com</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </nav>
+          <div data-w-id="386b64da-e5cc-623d-0152-15db2d20332b" class="fda-menu-button fda-right-gap w-nav-button">
+            <div class="fda-menu-line fda-line-one"></div>
+            <div class="fda-menu-line fda-line-two"></div>
+            <div class="fda-menu-line fda-line-three"></div>
+          </div>
+          <div class="fda-navbar-button-wrapper fda-tab-display-none">
+            <a data-w-id="a8416e24-bcd5-1a27-2990-5e430ccf61ae" href="/pricing" class="fda-button-main fda-border-transparent w-inline-block"
+              ><div class="fda-button-wrapper">
+                <div class="fda-button-inner-wrapper fda-1">
+                  <div class="fda-button-text-wrapper"><div class="fda-button-text">get a free quote</div></div>
+                  <div class="fda-button-text-arrow-wrapper"><img width="10" height="10" alt="" src="./Images/Button Arrow.svg" loading="lazy" class="fda-button-text-arrow" /></div>
+                </div>
+                <div class="fda-button-inner-wrapper fda-2">
+                  <div class="fda-button-text-wrapper"><div class="fda-button-text fda-text-color-golden">get a free quote</div></div>
+                  <div class="fda-button-text-arrow-wrapper"><img width="10" height="10" alt="" src="./Images/Golden Arrow.svg" loading="lazy" class="fda-button-text-arrow" /></div>
+                </div>
+              </div>
+              <div class="fda-button-black-overlay-corner"></div>
+              <div class="fda-button-black-overlay"></div
+            ></a>
+          </div>
+        </div>
+      </div>
+      <div class="fda-navbar-main-overlay"></div>
+    </div>
+
+<main>
+
+  <!-- ===================== HERO ===================== -->
+  <div class="fda-pricing-hero">
+    <div class="fda-container-medium w-container">
+      <div class="fda-service-hero-heading-bottom w-layout-hflex">
+        <div class="fda-service-hero-white-circle"></div>
+        <div class="fda-service-hero-white-line"></div>
+        <div class="fda-sub-text fda-text-color-white">Pricing</div>
+      </div>
+      <h1 class="fda-text-color-white fda-pricing-hero-heading">Know roughly what it costs before you pick up the phone.</h1>
+      <p class="fda-text-color-white fda-pricing-hero-sub">Pick the work you're planning and we'll show you a realistic range in a few seconds. When you're ready for a firm number, send it to us and we'll follow up with an exact quote.</p>
+    </div>
+  </div>
+
+  <!-- ===================== CALCULATOR ===================== -->
+  <div class="fda-calc">
+    <div class="fda-container-medium w-container">
+      <div class="fda-calc-layout">
+
+        <!-- ---------- left: inputs ---------- -->
+        <div class="fda-calc-main">
+
+          <div class="fda-calc-step">
+            <div class="fda-calc-step-head">
+              <div class="fda-calc-step-num">01</div>
+              <h3 class="fda-text-style-h3 fda-gap-off">What kind of property?</h3>
+            </div>
+            <div class="fda-calc-choices" id="propertyChoices" role="group" aria-label="Property type"></div>
+          </div>
+
+          <div class="fda-calc-step">
+            <div class="fda-calc-step-head">
+              <div class="fda-calc-step-num">02</div>
+              <h3 class="fda-text-style-h3 fda-gap-off">What work do you need?</h3>
+            </div>
+            <p style="margin-bottom:1.5625rem;">Open any category and tick the items that apply. Where we've asked for a size, a rough number is fine — you can leave the default if you're not sure.</p>
+            <div class="fda-calc-cats" id="categoryList"></div>
+          </div>
+
+          <div class="fda-calc-step">
+            <div class="fda-calc-step-head">
+              <div class="fda-calc-step-num">03</div>
+              <h3 class="fda-text-style-h3 fda-gap-off">What level of finish?</h3>
+            </div>
+            <div class="fda-calc-choices" id="finishChoices" role="group" aria-label="Finish level"></div>
+          </div>
+
+        </div>
+
+        <!-- ---------- right: live estimate ---------- -->
+        <aside class="fda-calc-rail">
+          <div class="fda-calc-panel">
+            <div class="fda-sub-text fda-text-color-golden">Estimated range</div>
+            <div class="fda-calc-range is-empty" id="estimateRange" aria-live="polite" aria-atomic="true">Select your work</div>
+            <p class="fda-calc-range-note" id="estimateNote">Tick at least one item to see a range. This is a planning estimate, not a quote.</p>
+
+            <div class="fda-calc-lines" id="estimateLines" hidden></div>
+
+            <div class="fda-calc-panel-actions">
+              <a href="#exact-quote" id="getQuoteBtn" class="fda-button-main fda-border-transparent fda-full-width w-inline-block">
+                <div class="fda-button-wrapper fda-full-width">
+                  <div class="fda-button-inner-wrapper fda-1 fda-full-width">
+                    <div class="fda-button-text-wrapper"><div class="fda-button-text">get the exact quote</div></div>
+                    <div class="fda-button-text-arrow-wrapper"><img width="10" height="10" alt="" src="./Images/Button Arrow.svg" class="fda-button-text-arrow" /></div>
+                  </div>
+                  <div class="fda-button-inner-wrapper fda-2 fda-full-width">
+                    <div class="fda-button-text-wrapper"><div class="fda-button-text fda-text-color-golden">get the exact quote</div></div>
+                    <div class="fda-button-text-arrow-wrapper"><img width="10" height="10" alt="" src="./Images/Golden Arrow.svg" class="fda-button-text-arrow" /></div>
+                  </div>
+                </div>
+                <div class="fda-button-black-overlay-corner fda-change-size fda-change-position"></div>
+              </a>
+              <button type="button" class="fda-calc-reset" id="resetBtn">Clear all selections</button>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== EXACT QUOTE FORM ===================== -->
+  <div class="fda-quote" id="exact-quote">
+    <div class="fda-container-medium w-container">
+      <div class="fda-quote-layout">
+
+        <div class="fda-quote-left">
+          <div class="fda-sub-heading-wrapper-inner fda-change-align w-layout-hflex">
+            <div class="fda-small-dash"></div>
+            <div class="fda-sub-text">Next step</div>
+          </div>
+          <h2 class="fda-gap-off">Get the exact quote</h2>
+          <p style="margin-top:1.25rem;">Send us your details and we'll come out, measure, and put a firm number in writing. Free, no obligation, and usually scheduled within two business days.</p>
+
+          <div class="fda-quote-summary">
+            <div class="fda-sub-text">Your estimate so far</div>
+            <div class="fda-quote-summary-range" id="summaryRange">Not calculated yet</div>
+            <p style="margin:0;font-size:.875rem;" id="summaryItems">Use the calculator above and your selections will travel with this form.</p>
+          </div>
+        </div>
+
+        <div class="fda-quote-right">
+
+          <form class="fda-quote-form" id="quoteForm" novalidate>
+            <div class="fda-quote-grid">
+
+              <div class="fda-quote-field">
+                <label for="qName">Full name <span class="fda-quote-req">*</span></label>
+                <input class="fda-text-field w-input" type="text" id="qName" name="name" autocomplete="name" placeholder="Jane Doe" required />
+                <div class="fda-quote-error">Please enter your name.</div>
+              </div>
+
+              <div class="fda-quote-field">
+                <label for="qPhone">Phone <span class="fda-quote-req">*</span></label>
+                <input class="fda-text-field w-input" type="tel" id="qPhone" name="phone" autocomplete="tel" placeholder="(555) 555-5555" required />
+                <div class="fda-quote-error">Please enter a phone number we can reach you on.</div>
+              </div>
+
+              <div class="fda-quote-field">
+                <label for="qEmail">Email <span class="fda-quote-req">*</span></label>
+                <input class="fda-text-field w-input" type="email" id="qEmail" name="email" autocomplete="email" placeholder="jane@example.com" required />
+                <div class="fda-quote-error">Please enter a valid email address.</div>
+              </div>
+
+              <div class="fda-quote-field">
+                <label for="qBestTime">Best time to reach you</label>
+                <select class="fda-select-field w-select" id="qBestTime" name="bestTime">
+                  <option value="Any time">Any time</option>
+                  <option value="Morning">Morning</option>
+                  <option value="Afternoon">Afternoon</option>
+                  <option value="Evening">Evening</option>
+                </select>
+              </div>
+
+              <div class="fda-quote-field is-full">
+                <label for="qAddress">Property address <span class="fda-quote-req">*</span></label>
+                <input class="fda-text-field w-input" type="text" id="qAddress" name="address" autocomplete="street-address" placeholder="123 Main St" required />
+                <div class="fda-quote-error">We need the property address to schedule an inspection.</div>
+              </div>
+
+              <div class="fda-quote-field">
+                <label for="qCity">City <span class="fda-quote-req">*</span></label>
+                <input class="fda-text-field w-input" type="text" id="qCity" name="city" autocomplete="address-level2" placeholder="Deerfield" required />
+                <div class="fda-quote-error">Please enter a city.</div>
+              </div>
+
+              <div class="fda-quote-field">
+                <label for="qZip">ZIP code <span class="fda-quote-req">*</span></label>
+                <input class="fda-text-field w-input" type="text" id="qZip" name="zip" inputmode="numeric" autocomplete="postal-code" placeholder="60015" required />
+                <div class="fda-quote-error">Please enter a 5-digit ZIP code.</div>
+              </div>
+
+              <div class="fda-quote-field">
+                <label for="qTimeline">When do you want to start?</label>
+                <select class="fda-select-field w-select" id="qTimeline" name="timeline">
+                  <option value="As soon as possible">As soon as possible</option>
+                  <option value="Within 1 month">Within 1 month</option>
+                  <option value="1-3 months">1&ndash;3 months</option>
+                  <option value="3-6 months">3&ndash;6 months</option>
+                  <option value="Just planning">Just planning for now</option>
+                </select>
+              </div>
+
+              <div class="fda-quote-field">
+                <label for="qInsurance">Is this an insurance claim?</label>
+                <select class="fda-select-field w-select" id="qInsurance" name="insuranceClaim">
+                  <option value="No">No</option>
+                  <option value="Yes - claim already filed">Yes &mdash; claim already filed</option>
+                  <option value="Yes - not yet filed">Yes &mdash; not yet filed</option>
+                  <option value="Not sure">Not sure</option>
+                </select>
+              </div>
+
+              <div class="fda-quote-field is-full">
+                <label for="qNotes">Anything else we should know?</label>
+                <textarea class="fda-textarea w-input" id="qNotes" name="notes" placeholder="Tell us about the property, the damage, access, deadlines, or anything specific you have in mind."></textarea>
+              </div>
+
+              <div class="fda-quote-consent">
+                <input type="checkbox" id="qConsent" name="consent" required />
+                <label for="qConsent">I agree to be contacted by FCV Restoration &amp; Construction about this request, and I've read the <a href="/privacy-policy" style="color:var(--midnight-navy);border-bottom:.0625rem solid var(--golden-amber);">Privacy Policy</a>. <span class="fda-quote-req">*</span></label>
+              </div>
+              <div class="fda-quote-field is-full has-error" id="consentError" style="display:none;margin-top:-1.25rem;">
+                <div class="fda-quote-error" style="display:block;">Please tick the box so we know we can contact you.</div>
+              </div>
+
+              <!-- spam trap: hidden from people, tempting to bots -->
+              <div class="fda-hp" aria-hidden="true">
+                <label for="qCompanyUrl">Leave this field empty</label>
+                <input type="text" id="qCompanyUrl" name="companyUrl" tabindex="-1" autocomplete="off" />
+              </div>
+
+              <div class="fda-quote-actions">
+                <button type="submit" class="fda-button-main fda-border-transparent w-inline-block" id="submitBtn" style="border:0;">
+                  <div class="fda-button-wrapper">
+                    <div class="fda-button-inner-wrapper fda-1">
+                      <div class="fda-button-text-wrapper"><div class="fda-button-text" id="submitLabel">send my request</div></div>
+                      <div class="fda-button-text-arrow-wrapper"><img width="10" height="10" alt="" src="./Images/Button Arrow.svg" class="fda-button-text-arrow" /></div>
+                    </div>
+                    <div class="fda-button-inner-wrapper fda-2">
+                      <div class="fda-button-text-wrapper"><div class="fda-button-text fda-text-color-golden" id="submitLabel2">send my request</div></div>
+                      <div class="fda-button-text-arrow-wrapper"><img width="10" height="10" alt="" src="./Images/Golden Arrow.svg" class="fda-button-text-arrow" /></div>
+                    </div>
+                  </div>
+                  <div class="fda-button-black-overlay-corner"></div>
+                </button>
+                <div class="fda-quote-status" id="formStatus" role="status" aria-live="polite"></div>
+              </div>
+
+            </div>
+          </form>
+
+          <div class="fda-quote-done" id="quoteDone">
+            <h3 class="fda-text-style-h3">Request received</h3>
+            <p style="max-width:32rem;margin:1rem auto 0;">Thanks &mdash; we've got your details and your estimate breakdown. Someone from the team will call you to arrange a site visit, usually within two business days.</p>
+            <p style="margin-top:1.25rem;">Need us sooner? Call <a href="tel:3132932280" style="color:var(--midnight-navy);border-bottom:.0625rem solid var(--golden-amber);">(313) 293-2280</a>.</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== WHAT MOVES THE PRICE ===================== -->
+  <div class="fda-factors">
+    <div class="fda-container-medium w-container">
+      <div class="fda-sub-heading-wrapper-inner fda-change-align w-layout-hflex">
+        <div class="fda-small-dash"></div>
+        <div class="fda-sub-text">Reading the range</div>
+      </div>
+      <h2 class="fda-gap-off">Why we quote a range, not a number</h2>
+      <div class="fda-factors-grid">
+        <div class="fda-factor">
+          <h5 class="fda-text-style-h5">Condition behind the walls</h5>
+          <p style="margin:0;">Rot, outdated wiring, failed plumbing, or water damage only show up once we open things up. We price what we can see and flag what we can't.</p>
+        </div>
+        <div class="fda-factor">
+          <h5 class="fda-text-style-h5">Materials and finish level</h5>
+          <p style="margin:0;">The same layout can swing widely depending on cabinetry, tile, fixtures, and flooring. Your selections drive a large share of the total.</p>
+        </div>
+        <div class="fda-factor">
+          <h5 class="fda-text-style-h5">Permits and structure</h5>
+          <p style="margin:0;">Moving load-bearing walls, altering egress, or changing the footprint brings permitting, engineering, and inspection into the cost.</p>
+        </div>
+        <div class="fda-factor">
+          <h5 class="fda-text-style-h5">Access and site conditions</h5>
+          <p style="margin:0;">Stairs, tight lots, occupied buildings, and limited parking all affect labour hours and how the work has to be staged.</p>
+        </div>
+        <div class="fda-factor">
+          <h5 class="fda-text-style-h5">Scheduling</h5>
+          <p style="margin:0;">Work that has to happen around a business's opening hours, a tenant, or a closing date is priced differently to an empty property.</p>
+        </div>
+        <div class="fda-factor">
+          <h5 class="fda-text-style-h5">Insurance scope</h5>
+          <p style="margin:0;">On claims, the covered scope is set between you and your carrier. We document thoroughly and build to the approved scope.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer data-wf--fda-footer--variant="base" class="fda-footer fda-overflow-hidden">
+      <div class="w-layout-blockcontainer fda-container-medium w-container">
+        <div class="fda-footer-top">
+          <div class="fda-footer-top-left">
+            <div>
+              <div data-w-id="a1cce851-072e-f5d4-bf45-f7f2c77dd2f0" class="fda-footer-heading fda-overflow-hidden"><h3 class="fda-gap-off fda-text-color-white fda-mobile-text-align-center">Building Strong Foundations for Residential and Commercial Projects</h3></div>
+              <div data-w-id="32581804-50c7-5bbd-7f29-f86803add327" class="fda-footer-get-started-wrapper fda-overflow-hidden">
+                <a data-w-id="a8416e24-bcd5-1a27-2990-5e430ccf61ae" href="/pricing" class="fda-button-main fda-border-transparent w-inline-block"
+                  ><div class="fda-button-wrapper">
+                    <div class="fda-button-inner-wrapper fda-1">
+                      <div class="fda-button-text-wrapper"><div class="fda-button-text">get started today</div></div>
+                      <div class="fda-button-text-arrow-wrapper"><img width="10" height="10" alt="" src="./Images/Button Arrow.svg" loading="lazy" class="fda-button-text-arrow" /></div>
+                    </div>
+                    <div class="fda-button-inner-wrapper fda-2">
+                      <div class="fda-button-text-wrapper"><div class="fda-button-text fda-text-color-golden">get started today</div></div>
+                      <div class="fda-button-text-arrow-wrapper"><img width="10" height="10" alt="" src="./Images/Golden Arrow.svg" loading="lazy" class="fda-button-text-arrow" /></div>
+                    </div>
+                  </div>
+                  <div class="fda-button-black-overlay-corner"></div>
+                  <div class="fda-button-black-overlay"></div
+                ></a>
+              </div>
+            </div>
+          </div>
+          <div class="fda-footer-top-right fda-overflow-hidden">
+            <div data-w-id="a1cce851-072e-f5d4-bf45-f7f2c77dd302" class="fda-footer-top-left-inner">
+              <div class="fda-footer-links-wrapper">
+                <div class="fda-text-style-h5 fda-text-color-white">Quick links</div>
+                <div class="fda-footer-links-wrapper-inner"><a href="/" aria-current="page" class="fda-text-style-h6 fda-text-color-white fda-hover-golden w--current">Home</a><a href="/about-us" class="fda-text-style-h6 fda-text-color-white fda-hover-golden">About us</a><a href="/pricing" class="fda-text-style-h6 fda-text-color-white fda-hover-golden">Pricing</a><a href="/services" class="fda-text-style-h6 fda-text-color-white fda-hover-golden">Services</a><a href="/contact" class="fda-text-style-h6 fda-text-color-white fda-hover-golden">Contact</a></div>
+              </div>
+              <div class="fda-footer-links-wrapper">
+                <div class="fda-text-style-h5 fda-text-color-white">Social media</div>
+                <div class="fda-footer-links-wrapper-inner">
+                    <a href="" class="fda-text-style-h6 fda-text-color-white
+                    fda-hover-golden">Facebook</a>
+                    <a href="" class="fda-text-style-h6 fda-text-color-white
+                    fda-hover-golden">Twitter</a>
+                    <a href="" class="fda-text-style-h6 fda-text-color-white fda-hover-golden">Instagram</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="fda-footer-middle-line"></div>
+      <div class="w-layout-blockcontainer fda-container-medium w-container">
+        <div class="fda-footer-middle">
+          <div class="fda-footer-middle-left fda-overflow-hidden">
+            <div data-w-id="a1cce851-072e-f5d4-bf45-f7f2c77dd31f" class="fda-footer-location-wrapper">
+              <div class="fda-location-icon-wrapper"><img src="./Images/Location Icon.svg" loading="lazy" alt="" /></div>
+              <div><div class="fda-text-style-h6 fda-text-color-white">570 Lake Cook Rd Ste 300, Deerfield, Illinois, 60015</div></div>
+            </div>
+          </div>
+          <div class="fda-footer-middle-right">
+            <div class="fda-footer-contact-details">
+              <div class="fda-overflow-hidden">
+                <div data-w-id="a1cce851-072e-f5d4-bf45-f7f2c77dd326" class="fda-text-style-h6 fda-text-color-white">Contact us - <a href="tel:8884567890" class="fda-text-color-white fda-hover-effect">(555) 010-0134</a></div>
+              </div>
+              <div class="fda-overflow-hidden">
+                <div data-w-id="a1cce851-072e-f5d4-bf45-f7f2c77dd32a" class="fda-text-style-h6 fda-text-color-white">Email -<a href="mailto:quote@fcvrestoration.com" class="fda-text-color-white fda-hover-effect"> quote@fcvrestoration.com</a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="fda-footer-bottom">
+          <div text="big-text" class="fda-expertise-text-wrapper"><div class="fda-medium-text">FCV Restoration</div></div>
+        </div>
+      </div>
+    </footer>
+
+<script>
+/* ============================================================================
+   ⚠️  PRICING CONFIGURATION — REPLACE BEFORE LAUNCH
+   ----------------------------------------------------------------------------
+   Every number below is a PLACEHOLDER based on general US market ranges.
+   They are NOT FCV Restoration & Construction's real prices.
+
+   Ask the client for their actual figures and edit this block only — nothing
+   else on the page needs to change.
+
+     unit: 'flat'  -> min/max are total dollars for the whole item
+           'sqft'  -> min/max are dollars per square foot
+           'lnft'  -> min/max are dollars per linear foot
+           'unit'  -> min/max are dollars per door / window / fixture
+
+     qty  -> the default quantity shown in the input
+   ========================================================================= */
+
+const PRICING = {
+
+  property: [
+    { id:'residential', label:'Home',       note:'A house, condo or townhome you live in',      mult:1.00 },
+    { id:'rental',      label:'Rental',     note:'Rental unit, flip, or investment property',    mult:0.92 },
+    { id:'commercial',  label:'Commercial', note:'Office, retail, or tenant space',              mult:1.18 }
+  ],
+
+  /* Finish level positions you WITHIN each item's min–max band rather than
+     multiplying it. band:[0,0.45] means "the bottom 45% of the range".
+     This keeps the final estimate tight enough to be useful — multiplying
+     both ends instead produces spreads so wide they tell the customer
+     nothing. Widen a band only if you genuinely want a looser quote. */
+  finish: [
+    { id:'standard', label:'Standard', note:'Solid builder-grade materials, clean and durable',  band:[0.00, 0.42] },
+    { id:'premium',  label:'Premium',  note:'Upgraded finishes, better fixtures and cabinetry',  band:[0.30, 0.72] },
+    { id:'highend',  label:'High-end', note:'Custom work, designer materials, premium hardware', band:[0.58, 1.00] }
+  ],
+
+  categories: [
+    { id:'general', name:'General Remodeling', scopes:[
+      { id:'fullhome',   label:'Full home remodeling',        unit:'sqft', min:95,   max:230,   qty:1500 },
+      { id:'interior',   label:'Interior renovations',        unit:'sqft', min:60,   max:150,   qty:800  },
+      { id:'exterior',   label:'Exterior renovations',        unit:'sqft', min:45,   max:120,   qty:800  },
+      { id:'addition',   label:'Room addition',               unit:'sqft', min:180,  max:420,   qty:300  },
+      { id:'openplan',   label:'Open-concept conversion',     unit:'flat', min:8000, max:28000 },
+      { id:'structural', label:'Structural modifications',    unit:'flat', min:4500, max:25000 },
+      { id:'aging',      label:'Aging-in-place renovations',  unit:'flat', min:3500, max:18000 }
+    ]},
+
+    { id:'kitchen', name:'Kitchen Remodeling', scopes:[
+      { id:'full',       label:'Full kitchen remodel',            unit:'flat', min:24000, max:68000 },
+      { id:'cabinets',   label:'Cabinet installation/replacement',unit:'flat', min:6500,  max:22000 },
+      { id:'refinish',   label:'Cabinet refinishing & painting',  unit:'flat', min:2800,  max:7500  },
+      { id:'counters',   label:'Countertop installation',         unit:'flat', min:2500,  max:9500  },
+      { id:'island',     label:'Kitchen island installation',     unit:'flat', min:3000,  max:11000 },
+      { id:'backsplash', label:'Backsplash installation',         unit:'flat', min:900,   max:3200  },
+      { id:'sinktap',    label:'Sink & faucet installation',      unit:'flat', min:600,   max:2600  },
+      { id:'appliance',  label:'Appliance installation',          unit:'flat', min:500,   max:3000  },
+      { id:'lighting',   label:'Lighting upgrades',               unit:'flat', min:800,   max:4000  }
+    ]},
+
+    { id:'bathroom', name:'Bathroom Remodeling', scopes:[
+      { id:'full',       label:'Full bathroom remodel',       unit:'flat', min:11000, max:34000 },
+      { id:'tub',        label:'Tub replacement',             unit:'flat', min:1400,  max:5500  },
+      { id:'shower',     label:'Shower replacement',          unit:'flat', min:3000,  max:9500  },
+      { id:'walkin',     label:'Walk-in shower installation', unit:'flat', min:4500,  max:13000 },
+      { id:'tile',       label:'Tile installation',           unit:'sqft', min:12,    max:30, qty:120 },
+      { id:'vanity',     label:'Vanity installation',         unit:'flat', min:800,   max:4500  },
+      { id:'toilet',     label:'Toilet installation',         unit:'flat', min:350,   max:1200  },
+      { id:'fixtures',   label:'Plumbing fixture upgrades',   unit:'flat', min:500,   max:3000  },
+      { id:'access',     label:'Accessibility modifications', unit:'flat', min:1500,  max:9000  }
+    ]},
+
+    { id:'basement', name:'Basement Remodeling', scopes:[
+      { id:'finishing',  label:'Basement finishing',              unit:'sqft', min:35,   max:85,    qty:800 },
+      { id:'framing',    label:'Basement framing',                unit:'sqft', min:8,    max:18,    qty:800 },
+      { id:'drywall',    label:'Basement drywall installation',   unit:'sqft', min:3,    max:7,     qty:800 },
+      { id:'flooring',   label:'Basement flooring installation',  unit:'sqft', min:5,    max:16,    qty:800 },
+      { id:'bathroom',   label:'Basement bathroom',               unit:'flat', min:9000, max:26000 },
+      { id:'ent',        label:'Entertainment room',              unit:'flat', min:6000, max:25000 },
+      { id:'office',     label:'Home office',                     unit:'flat', min:4000, max:15000 },
+      { id:'waterproof', label:'Waterproofing coordination',      unit:'flat', min:2500, max:12000 }
+    ]},
+
+    { id:'flooring', name:'Flooring Services', scopes:[
+      { id:'hardwood',  label:'Hardwood flooring',       unit:'sqft', min:9,  max:20, qty:600 },
+      { id:'laminate',  label:'Laminate flooring',       unit:'sqft', min:4,  max:9,  qty:600 },
+      { id:'lvp',       label:'Luxury vinyl plank (LVP)',unit:'sqft', min:5,  max:12, qty:600 },
+      { id:'vinyl',     label:'Vinyl flooring',          unit:'sqft', min:3,  max:8,  qty:600 },
+      { id:'tile',      label:'Tile flooring',           unit:'sqft', min:10, max:25, qty:400 },
+      { id:'carpet',    label:'Carpet installation',     unit:'sqft', min:3,  max:9,  qty:600 },
+      { id:'leveling',  label:'Floor leveling',          unit:'sqft', min:2,  max:6,  qty:400 },
+      { id:'subfloor',  label:'Subfloor repairs',        unit:'sqft', min:4,  max:12, qty:200 }
+    ]},
+
+    { id:'drywall', name:'Drywall Services', scopes:[
+      { id:'install',   label:'Drywall installation',  unit:'sqft', min:2.5, max:5.5, qty:600 },
+      { id:'repair',    label:'Drywall repair',        unit:'flat', min:350, max:1800 },
+      { id:'water',     label:'Water damage repairs',  unit:'flat', min:800, max:5500 },
+      { id:'finishing', label:'Drywall finishing',     unit:'sqft', min:1.5, max:3.5, qty:600 },
+      { id:'taping',    label:'Taping & mudding',      unit:'sqft', min:1.2, max:3,   qty:600 },
+      { id:'texture',   label:'Texture matching',      unit:'flat', min:400, max:2200 },
+      { id:'ceiling',   label:'Ceiling repairs',       unit:'flat', min:450, max:2800 }
+    ]},
+
+    { id:'painting', name:'Painting Services', scopes:[
+      { id:'interior',  label:'Interior painting',      unit:'sqft', min:2.5, max:6.5, qty:1200 },
+      { id:'exterior',  label:'Exterior painting',      unit:'sqft', min:3,   max:9,   qty:1500 },
+      { id:'cabinet',   label:'Cabinet painting',       unit:'flat', min:2200,max:7000 },
+      { id:'trim',      label:'Trim painting',          unit:'flat', min:600, max:3200 },
+      { id:'ceiling',   label:'Ceiling painting',       unit:'sqft', min:1.5, max:4,   qty:800  },
+      { id:'patch',     label:'Drywall patch & paint',  unit:'flat', min:400, max:2000 },
+      { id:'stain',     label:'Staining & finishing',   unit:'flat', min:800, max:4500 }
+    ]},
+
+    { id:'carpentry', name:'Carpentry Services', scopes:[
+      { id:'trim',      label:'Trim installation',   unit:'lnft', min:4,   max:12,   qty:150 },
+      { id:'baseboard', label:'Baseboard installation', unit:'lnft', min:3.5, max:10, qty:150 },
+      { id:'crown',     label:'Crown molding',       unit:'lnft', min:6,   max:16,   qty:120 },
+      { id:'doors',     label:'Door installation',   unit:'unit', min:350, max:1500, qty:3   },
+      { id:'wintrim',   label:'Window trim',         unit:'unit', min:150, max:600,  qty:5   },
+      { id:'builtins',  label:'Custom built-ins',    unit:'flat', min:1800,max:12000 },
+      { id:'shelving',  label:'Shelving installation',unit:'flat',min:400, max:3000  },
+      { id:'framing',   label:'Framing',             unit:'sqft', min:8,   max:20,   qty:300 },
+      { id:'deck',      label:'Deck framing',        unit:'sqft', min:20,  max:48,   qty:250 },
+      { id:'stairs',    label:'Stair repairs',       unit:'flat', min:700, max:5000  }
+    ]},
+
+    { id:'tile', name:'Tile Services', scopes:[
+      { id:'floor',      label:'Floor tile installation',  unit:'sqft', min:10, max:25, qty:300 },
+      { id:'shower',     label:'Shower tile installation', unit:'sqft', min:15, max:35, qty:100 },
+      { id:'backsplash', label:'Backsplash installation',  unit:'flat', min:900,max:3200 },
+      { id:'wall',       label:'Wall tile installation',   unit:'sqft', min:12, max:28, qty:150 },
+      { id:'grout',      label:'Grout repair',             unit:'flat', min:350,max:1600 },
+      { id:'replace',    label:'Tile replacement',         unit:'flat', min:400,max:3000 }
+    ]},
+
+    { id:'doors', name:'Doors & Windows', scopes:[
+      { id:'interior', label:'Interior door installation', unit:'unit', min:350, max:1200, qty:3 },
+      { id:'exterior', label:'Exterior door installation', unit:'unit', min:900, max:4500, qty:1 },
+      { id:'sliding',  label:'Sliding door installation',  unit:'unit', min:1500,max:6500, qty:1 },
+      { id:'window',   label:'Window replacement',         unit:'unit', min:600, max:2200, qty:6 },
+      { id:'wintrim',  label:'Window trim installation',   unit:'unit', min:150, max:600,  qty:6 }
+    ]},
+
+    { id:'commercial', name:'Commercial Remodeling', scopes:[
+      { id:'office',   label:'Office renovations',   unit:'sqft', min:55, max:160, qty:2000 },
+      { id:'retail',   label:'Retail build-out',     unit:'sqft', min:65, max:200, qty:2000 },
+      { id:'tenant',   label:'Tenant improvements',  unit:'sqft', min:45, max:140, qty:2000 },
+      { id:'painting', label:'Commercial painting',  unit:'sqft', min:2,  max:6,   qty:3000 },
+      { id:'flooring', label:'Commercial flooring',  unit:'sqft', min:5,  max:18,  qty:2000 }
+    ]},
+
+    { id:'property', name:'Property Management', scopes:[
+      { id:'insurance', label:'Insurance restoration work',   unit:'flat', min:3000, max:40000 },
+      { id:'maint',     label:'Property maintenance',         unit:'flat', min:500,  max:5000  },
+      { id:'rental',    label:'Rental property renovations',  unit:'flat', min:6000, max:35000 },
+      { id:'flip',      label:'Real estate flip renovation',  unit:'flat', min:15000,max:75000 },
+      { id:'presale',   label:'Home preparation for sale',    unit:'flat', min:2500, max:15000 },
+      { id:'punch',     label:'Punch-list repairs',           unit:'flat', min:500,  max:4500  },
+      { id:'handyman',  label:'Handyman services',            unit:'flat', min:300,  max:2500  }
+    ]}
+  ]
+};
+
+/* ============================================================================
+   ⚠️  BACKEND ENDPOINT — REPLACE BEFORE LAUNCH
+   Deploy quote-backend.gs as a Google Apps Script Web App
+   ("Execute as: Me", "Who has access: Anyone") and paste the /exec URL here.
+   ========================================================================= */
+const SHEET_ENDPOINT = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+
+
+/* ==========================  calculator engine  ========================== */
+(function () {
+  'use strict';
+
+  const UNIT_LABEL = { sqft:'sq ft', lnft:'linear ft', unit:'units' };
+
+  const state = {
+    property: 'residential',
+    finish: 'standard',
+    picks: {}   // "catId:scopeId" -> quantity
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const money = (n) => '$' + Math.round(n).toLocaleString('en-US');
+  const roundTo = (n, step) => Math.round(n / step) * step;
+  // Rounding to the nearest $500 distorts small jobs — a $700 punch list
+  // should not display as $500. Scale the step to the size of the number.
+  const roundSmart = (n) => roundTo(n, n < 5000 ? 100 : n < 50000 ? 500 : 1000);
+
+  /* ---------- build the choice button groups ---------- */
+  function renderChoices(container, options, stateKey) {
+    container.innerHTML = '';
+    options.forEach((opt) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'fda-calc-choice';
+      btn.setAttribute('aria-pressed', String(state[stateKey] === opt.id));
+      btn.dataset.value = opt.id;
+      btn.innerHTML =
+        '<span class="fda-calc-choice-label">' + opt.label + '</span>' +
+        '<span class="fda-calc-choice-note">' + opt.note + '</span>';
+      btn.addEventListener('click', () => {
+        state[stateKey] = opt.id;
+        container.querySelectorAll('.fda-calc-choice').forEach((b) =>
+          b.setAttribute('aria-pressed', String(b.dataset.value === opt.id))
+        );
+        recalc();
+      });
+      container.appendChild(btn);
+    });
+  }
+
+  /* ---------- build the service category accordions ---------- */
+  function renderCategories() {
+    const wrap = $('categoryList');
+    wrap.innerHTML = '';
+
+    PRICING.categories.forEach((cat) => {
+      const card = document.createElement('div');
+      card.className = 'fda-calc-cat';
+      card.dataset.cat = cat.id;
+
+      const bodyId = 'catbody-' + cat.id;
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'fda-calc-cat-toggle';
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-controls', bodyId);
+      toggle.innerHTML =
+        '<span class="fda-calc-cat-name">' + cat.name + '</span>' +
+        '<span class="fda-calc-cat-right">' +
+          '<span class="fda-calc-cat-count" data-count>' + cat.scopes.length + ' options</span>' +
+          '<span class="fda-calc-plus" aria-hidden="true"></span>' +
+        '</span>';
+      toggle.addEventListener('click', () => {
+        const open = card.classList.toggle('is-open');
+        toggle.setAttribute('aria-expanded', String(open));
+      });
+
+      const body = document.createElement('div');
+      body.className = 'fda-calc-cat-body';
+      body.id = bodyId;
+
+      cat.scopes.forEach((sc) => {
+        const key = cat.id + ':' + sc.id;
+        const row = document.createElement('div');
+        row.className = 'fda-calc-scope';
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.id = 'sc-' + key.replace(':', '-');
+
+        const label = document.createElement('label');
+        label.className = 'fda-calc-scope-label';
+        label.setAttribute('for', cb.id);
+        label.textContent = sc.label;
+
+        row.appendChild(cb);
+        row.appendChild(label);
+
+        let qtyInput = null;
+        if (sc.unit !== 'flat') {
+          const qtyWrap = document.createElement('span');
+          qtyWrap.className = 'fda-calc-qty';
+          qtyInput = document.createElement('input');
+          qtyInput.type = 'number';
+          qtyInput.min = '1';
+          qtyInput.step = '1';
+          qtyInput.value = String(sc.qty);
+          qtyInput.setAttribute('aria-label', sc.label + ' — quantity in ' + UNIT_LABEL[sc.unit]);
+          const unitTag = document.createElement('span');
+          unitTag.className = 'fda-calc-qty-unit';
+          unitTag.textContent = UNIT_LABEL[sc.unit];
+          qtyWrap.appendChild(qtyInput);
+          qtyWrap.appendChild(unitTag);
+          row.appendChild(qtyWrap);
+
+          qtyInput.addEventListener('input', () => {
+            if (state.picks[key] !== undefined) {
+              state.picks[key] = Math.max(1, parseFloat(qtyInput.value) || 1);
+              recalc();
+            }
+          });
+        }
+
+        cb.addEventListener('change', () => {
+          row.classList.toggle('is-checked', cb.checked);
+          if (cb.checked) {
+            state.picks[key] = qtyInput ? Math.max(1, parseFloat(qtyInput.value) || 1) : 1;
+          } else {
+            delete state.picks[key];
+          }
+          updateCatCount(cat.id);
+          recalc();
+        });
+
+        body.appendChild(row);
+      });
+
+      card.appendChild(toggle);
+      card.appendChild(body);
+      wrap.appendChild(card);
+    });
+  }
+
+  function updateCatCount(catId) {
+    const cat = PRICING.categories.find((c) => c.id === catId);
+    const el = document.querySelector('.fda-calc-cat[data-cat="' + catId + '"] [data-count]');
+    const n = Object.keys(state.picks).filter((k) => k.split(':')[0] === catId).length;
+    el.textContent = n > 0 ? n + ' selected' : cat.scopes.length + ' options';
+    el.classList.toggle('is-active', n > 0);
+  }
+
+  /* ---------- the actual maths ---------- */
+  function compute() {
+    const pMult = PRICING.property.find((p) => p.id === state.property).mult;
+    const band  = PRICING.finish.find((f) => f.id === state.finish).band;
+
+    let low = 0, high = 0;
+    const lines = [];
+
+    Object.keys(state.picks).forEach((key) => {
+      const [catId, scopeId] = key.split(':');
+      const cat = PRICING.categories.find((c) => c.id === catId);
+      const sc = cat.scopes.find((s) => s.id === scopeId);
+      const qty = sc.unit === 'flat' ? 1 : state.picks[key];
+
+      // Slide into the chosen finish band, then scale for property type.
+      const span = sc.max - sc.min;
+      const l = (sc.min + span * band[0]) * qty * pMult;
+      const h = (sc.min + span * band[1]) * qty * pMult;
+      low += l; high += h;
+
+      lines.push({
+        label: sc.label,
+        qty: sc.unit === 'flat' ? '' : qty + ' ' + UNIT_LABEL[sc.unit],
+        low: l, high: h
+      });
+    });
+
+    return { low, high, lines, count: lines.length };
+  }
+
+  function recalc() {
+    const r = compute();
+    const rangeEl = $('estimateRange');
+    const noteEl = $('estimateNote');
+    const linesEl = $('estimateLines');
+
+    if (r.count === 0) {
+      rangeEl.textContent = 'Select your work';
+      rangeEl.classList.add('is-empty');
+      noteEl.textContent = 'Tick at least one item to see a range. This is a planning estimate, not a quote.';
+      linesEl.hidden = true;
+      $('summaryRange').textContent = 'Not calculated yet';
+      $('summaryItems').textContent = 'Use the calculator above and your selections will travel with this form.';
+      return;
+    }
+
+    const lo = roundSmart(r.low);
+    const hi = roundSmart(r.high);
+    const text = money(lo) + ' – ' + money(hi);
+
+    rangeEl.textContent = text;
+    rangeEl.classList.remove('is-empty');
+    noteEl.textContent = r.count + (r.count === 1 ? ' item' : ' items') +
+      ' · ' + PRICING.property.find(p => p.id === state.property).label.toLowerCase() +
+      ' · ' + PRICING.finish.find(f => f.id === state.finish).label.toLowerCase() +
+      ' finish. Planning estimate only — a site visit sets the real number.';
+
+    linesEl.hidden = false;
+    linesEl.innerHTML = r.lines.map((ln) =>
+      '<div class="fda-calc-line"><span>' + ln.label + (ln.qty ? ' · ' + ln.qty : '') +
+      '</span><span>' + money(roundSmart(ln.low)) + '–' + money(roundSmart(ln.high)) + '</span></div>'
+    ).join('');
+
+    $('summaryRange').textContent = text;
+    $('summaryItems').textContent = r.lines.map((l) => l.label).join(' · ');
+  }
+
+  /* ---------- reset ---------- */
+  $('resetBtn').addEventListener('click', () => {
+    state.picks = {};
+    document.querySelectorAll('.fda-calc-scope input[type="checkbox"]').forEach((cb) => {
+      cb.checked = false;
+      cb.closest('.fda-calc-scope').classList.remove('is-checked');
+    });
+    PRICING.categories.forEach((c) => updateCatCount(c.id));
+    recalc();
+  });
+
+  /* ---------- form ---------- */
+  const form = $('quoteForm');
+  const status = $('formStatus');
+
+  function setError(field, on) {
+    field.closest('.fda-quote-field').classList.toggle('has-error', on);
+  }
+
+  function validate() {
+    let ok = true;
+    const required = ['qName', 'qPhone', 'qEmail', 'qAddress', 'qCity', 'qZip'];
+    required.forEach((id) => {
+      const el = $(id);
+      let bad = !el.value.trim();
+      if (!bad && id === 'qEmail') bad = !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(el.value.trim());
+      if (!bad && id === 'qZip') bad = !/^\d{5}(-\d{4})?$/.test(el.value.trim());
+      if (!bad && id === 'qPhone') bad = el.value.replace(/\D/g, '').length < 10;
+      setError(el, bad);
+      if (bad && ok) el.focus();
+      if (bad) ok = false;
+    });
+    const consentBad = !$('qConsent').checked;
+    $('consentError').style.display = consentBad ? 'block' : 'none';
+    if (consentBad) ok = false;
+    return ok;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    status.className = 'fda-quote-status';
+    status.textContent = '';
+
+    if ($('qCompanyUrl').value) return;            // bot
+    if (!validate()) {
+      status.className = 'fda-quote-status is-bad';
+      status.textContent = 'Please check the highlighted fields.';
+      return;
+    }
+
+    const r = compute();
+    const payload = {
+      submittedAt: new Date().toISOString(),
+      name:    $('qName').value.trim(),
+      phone:   $('qPhone').value.trim(),
+      email:   $('qEmail').value.trim(),
+      bestTime:$('qBestTime').value,
+      address: $('qAddress').value.trim(),
+      city:    $('qCity').value.trim(),
+      zip:     $('qZip').value.trim(),
+      timeline:$('qTimeline').value,
+      insuranceClaim: $('qInsurance').value,
+      notes:   $('qNotes').value.trim(),
+      propertyType: PRICING.property.find((p) => p.id === state.property).label,
+      finishLevel:  PRICING.finish.find((f) => f.id === state.finish).label,
+      itemCount: r.count,
+      estimateLow:  r.count ? roundSmart(r.low) : '',
+      estimateHigh: r.count ? roundSmart(r.high) : '',
+      estimateRange: r.count ? money(roundSmart(r.low)) + ' - ' + money(roundSmart(r.high)) : 'Not calculated',
+      selectedItems: r.lines.map((l) => l.label + (l.qty ? ' (' + l.qty + ')' : '')).join('; '),
+      pageUrl: window.location.href
+    };
+
+    $('submitLabel').textContent = 'sending…';
+    $('submitLabel2').textContent = 'sending…';
+    $('submitBtn').disabled = true;
+
+    try {
+      await fetch(SHEET_ENDPOINT, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      form.classList.add('is-hidden');
+      $('quoteDone').classList.add('is-visible');
+      $('quoteDone').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (err) {
+      status.className = 'fda-quote-status is-bad';
+      status.textContent = 'Something went wrong sending that. Please call (313) 293-2280 and we\'ll take your details over the phone.';
+      $('submitLabel').textContent = 'send my request';
+      $('submitLabel2').textContent = 'send my request';
+      $('submitBtn').disabled = false;
+    }
+  });
+
+  /* ---------- init ---------- */
+  renderChoices($('propertyChoices'), PRICING.property, 'property');
+  renderChoices($('finishChoices'), PRICING.finish, 'finish');
+  renderCategories();
+  recalc();
+})();
+</script>
+
+</body>
+</html>
