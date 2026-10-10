@@ -1,0 +1,140 @@
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    function setupTestimonials() {
+      document.querySelectorAll('.testimonial-slide').forEach(function (slide) {
+        const text = slide.querySelector('.testimonial-text');
+        const button = slide.querySelector('.testimonial-button');
+
+        if (!text || !button) return;
+
+        // Prevent duplicate initialization
+        if (text.dataset.testimonialInitialized === 'true') return;
+        text.dataset.testimonialInitialized = 'true';
+
+        function getLineHeight() {
+          const styles = window.getComputedStyle(text);
+          let lineHeight = parseFloat(styles.lineHeight);
+
+          // If line-height is "normal"
+          if (isNaN(lineHeight)) {
+            lineHeight = parseFloat(styles.fontSize) * 1.2;
+          }
+
+          return lineHeight;
+        }
+
+        function setup() {
+          // Temporarily remove restrictions so we can measure
+          // the complete testimonial
+          text.style.maxHeight = 'none';
+          text.classList.remove('is-collapsed');
+
+          const fullHeight = text.scrollHeight;
+          const lineHeight = getLineHeight();
+          const fourLineHeight = lineHeight * 4;
+
+          // Check if testimonial is longer than 4 lines
+          if (fullHeight > fourLineHeight + 2) {
+            // Long testimonial
+            button.classList.add('is-visible');
+
+            // Collapse to 4 lines
+            text.style.maxHeight = fourLineHeight + 'px';
+            text.classList.add('is-collapsed');
+
+            button.textContent = 'Read More';
+            button.dataset.expanded = 'false';
+          } else {
+            // Short testimonial
+            button.classList.remove('is-visible');
+
+            text.style.maxHeight = 'none';
+            text.classList.remove('is-collapsed');
+          }
+        }
+
+        // =========================
+        // READ MORE / READ LESS
+        // =========================
+
+        button.addEventListener('click', function () {
+          const isExpanded = button.dataset.expanded === 'true';
+
+          const lineHeight = getLineHeight();
+          const fourLineHeight = lineHeight * 4;
+
+          // =========================
+          // EXPAND
+          // =========================
+
+          if (!isExpanded) {
+            // Remove the ellipsis
+            text.classList.remove('is-collapsed');
+
+            // Start from the 4-line height
+            text.style.maxHeight = fourLineHeight + 'px';
+
+            // Force browser reflow
+            text.offsetHeight;
+
+            // Get complete text height
+            const fullHeight = text.scrollHeight;
+
+            // Animate to full height
+            requestAnimationFrame(function () {
+              text.style.maxHeight = fullHeight + 'px';
+            });
+
+            button.textContent = 'Read Less';
+            button.dataset.expanded = 'true';
+
+            // =========================
+            // COLLAPSE
+            // =========================
+          } else {
+            // Get the current full height
+            const currentHeight = text.scrollHeight;
+
+            // Explicitly set current height
+            // so the animation has a starting point
+            text.style.maxHeight = currentHeight + 'px';
+
+            // Force browser reflow
+            text.offsetHeight;
+
+            // Animate back to 4 lines
+            requestAnimationFrame(function () {
+              text.style.maxHeight = fourLineHeight + 'px';
+            });
+
+            button.textContent = 'Read More';
+            button.dataset.expanded = 'false';
+
+            // Add ellipsis ONLY after animation finishes
+            const handleTransitionEnd = function (event) {
+              if (event.propertyName !== 'max-height') return;
+
+              text.classList.add('is-collapsed');
+
+              text.removeEventListener('transitionend', handleTransitionEnd);
+            };
+
+            text.addEventListener('transitionend', handleTransitionEnd);
+          }
+        });
+
+        // Initial setup
+        setup();
+      });
+
+      // Webflow sliders can change dimensions after initialization
+      setTimeout(setupTestimonials, 500);
+      setTimeout(setupTestimonials, 1500);
+    }
+
+    setupTestimonials();
+  });
+</script>
