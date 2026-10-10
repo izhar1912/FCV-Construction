@@ -573,8 +573,8 @@
               </div>
 
               <div class="fda-hp" aria-hidden="true">
-                <label for="qCompanyUrl">Leave this field empty</label>
-                <input type="text" id="qCompanyUrl" name="companyUrl" tabindex="-1" autocomplete="off" />
+                <label for="qTrapX7q">Leave this field empty</label>
+                <input type="text" id="qTrapX7q" name="hp_x7q" tabindex="-1" autocomplete="off" data-lpignore="true" data-1p-ignore="true" />
               </div>
 
               <div class="fda-quote-actions">
@@ -1186,12 +1186,14 @@ const RATE_CARD = [
     return ok;
   }
 
-  form.addEventListener('submit', async (e) => {
+  window.addEventListener('submit', async (e) => {
+    if (e.target !== form) return;
     e.preventDefault();
+    e.stopImmediatePropagation();
     status.className = 'fda-quote-status';
     status.textContent = '';
 
-    if ($('qCompanyUrl').value) return;              // bot
+    if ($('qTrapX7q').value) return;              // bot
     if (!validate()) {
       status.className = 'fda-quote-status is-bad';
       status.textContent = 'Please check the highlighted fields.';
@@ -1239,7 +1241,7 @@ const RATE_CARD = [
       $('submitLabel2').textContent = 'send my request';
       $('submitBtn').disabled = false;
     }
-  });
+  }, true);
 
   /* ---------- init ---------- */
   renderCategories();

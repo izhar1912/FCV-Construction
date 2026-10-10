@@ -15,7 +15,7 @@
   var TIMEOUT_MS = 30000; // Apps Script writes the row AND sends 2 emails before it answers
 
   function isConfigured() {
-    return /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec/.test(ENDPOINT);
+    return /^https:\/\/script\.google(usercontent)?\.com\/.+\/exec/.test(ENDPOINT);
   }
 
   /**
@@ -57,8 +57,11 @@
 
   /* ---------------------------------------------------------------------------
      Contact form (contact.html)
-     Runs in the capture phase so Webflow's own form handler never sees the
-     submit (it would otherwise try to post to Webflow and show its fail box).
+     - Runs in the capture phase so Webflow's own form handler never sees the
+       submit (it would otherwise try to post to Webflow and show its fail box).
+     - Validates by itself and ALWAYS tells the visitor what is wrong. (The
+       browser's built-in validation can't be used: the terms checkbox is
+       visually hidden, so the browser blocks the submit with no visible hint.)
      ------------------------------------------------------------------------ */
   window.addEventListener('submit', function (e) {
     var form = e.target;
@@ -67,17 +70,13 @@
     e.preventDefault();
     e.stopImmediatePropagation();
 
-    var hp = form.querySelector('[name="companyUrl"]');
-    if (hp && hp.value) return; // bot
-
     var btn = form.querySelector('input[type="submit"]');
     var status = form.parentNode.querySelector('.fcv-form-status');
     if (!status) {
       status = document.createElement('div');
       status.className = 'fcv-form-status';
-      status.setAttribute('role', 'status');
-      status.setAttribute('aria-live', 'polite');
-      status.style.cssText = 'margin-top:1rem;font-size:.9375rem;line-height:1.5;color:#a33;';
+      status.setAttribute('role', 'alert');
+      status.style.cssText = 'margin-top:1rem;font-size:1rem;line-height:1.5;font-weight:600;color:#b3261e;';
       form.parentNode.appendChild(status);
     }
     status.textContent = '';
@@ -86,15 +85,29 @@
       var el = form.querySelector('[name="' + name + '"]');
       return el ? String(el.value || '').trim() : '';
     }
+    function problem(msg, fieldName) {
+      status.textContent = msg;
+      var el = fieldName ? form.querySelector('[name="' + fieldName + '"]') : null;
+      try { if (el && el.type !== 'checkbox') el.focus(); } catch (err) {}
+      try { status.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (err) {}
+    }
+
+    // Anti-spam trap field: real visitors never see or fill it.
+    var trap = form.querySelector('[name="hp_x7q"]');
+    if (trap && trap.value) { console.warn('[FCV forms] submission ignored (trap field filled)'); return; }
 
     var email = val('Email');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-      status.textContent = 'Please enter a valid email address.';
-      return;
-    }
+    var phoneDigits = val('Phone-number').replace(/\D/g, '');
+    var terms = form.querySelector('[name="checkbox"]');
+
+    if (!val('name'))                                       return problem('Please enter your name.', 'name');
+    if (phoneDigits.length < 10)                            return problem('Please enter a phone number we can reach you on.', 'Phone-number');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))      return problem('Please enter a valid email address.', 'Email');
+    if (terms && !terms.checked)                            return problem('Please tick the box to agree to the terms and conditions.');
 
     var originalLabel = btn ? btn.value : '';
     if (btn) { btn.disabled = true; btn.value = btn.getAttribute('data-wait') || 'Please wait...'; }
+    console.info('[FCV forms] sending contact form...');
 
     send('contact', {
       name: val('name'),
@@ -102,8 +115,9 @@
       email: email,
       subject: val('Subject') || 'General enquiry',
       message: val('Message')
-    }).catch(function () {
-      status.textContent = 'Something went wrong sending that. Please call (313) 293-2280 or email quote@fcvrestoration.com and we\u2019ll help right away.';
+    }).catch(function (err) {
+      console.error('[FCV forms] send failed:', err);
+      problem('Something went wrong sending that. Please call (313) 293-2280 or email quote@fcvrestoration.com and we\u2019ll help right away.');
       if (btn) { btn.disabled = false; btn.value = originalLabel; }
     });
   }, true);
