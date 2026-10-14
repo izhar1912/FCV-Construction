@@ -10,7 +10,7 @@
 (function () {
   'use strict';
 
-  var ENDPOINT = 'https://script.google.com/macros/s/AKfycbwYc5TZ6q-CYjaxhwayp7raqDUnph3w89VroN_XK1Dzo5jt24Y5RLTT-s1Qjmk15t7L/exec';
+  var ENDPOINT = 'https://script.google.com/macros/s/AKfycbzue-DJaMFHPzXlMARjrNjUXORBh2HhdhmbmrKaTR9Nw1WKW1_2ydsr_JQqxZgsi8Tt/exec';
   var THANK_YOU_PAGE = 'thank-you.html';
   var TIMEOUT_MS = 30000; // Apps Script writes the row AND sends 2 emails before it answers
 
