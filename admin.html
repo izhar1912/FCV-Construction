@@ -119,7 +119,7 @@ a{color:inherit}
 .d-body{flex:1;overflow-y:auto;padding:1.25rem 1.5rem 2rem}
 .card{background:#fff;border:1px solid var(--line);border-radius:4px;padding:1.1rem 1.25rem;margin-bottom:1rem}
 .card h3{margin:0 0 .8rem;padding-bottom:.55rem;border-bottom:2px solid var(--gold);font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--navy)}
-.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:1rem}
 .price-grid .k{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
 .price-grid .v{font:400 1.6rem/1.25 var(--serif);color:var(--navy)}
 .price-grid .v.none{font:italic 400 1rem/2 var(--font);color:#9ca3af}
@@ -155,6 +155,11 @@ a{color:inherit}
 .d-foot .msg{margin:0;min-height:0;flex:1 1 12rem}
 .d-foot .ok{color:var(--green)}
 
+.linkrow{display:flex;gap:.5rem;flex-wrap:wrap;align-items:stretch}
+.linkrow input{flex:1 1 14rem;min-width:0;padding:.6rem .75rem;border:1.5px solid #cfc9b9;border-radius:3px;background:#f9fafb;font-size:.82rem;color:#374151}
+.linkrow .btn{padding:.6rem .95rem}
+.vis{margin:.8rem 0 0;font-size:.88rem;padding:.6rem .8rem;border-radius:3px}
+.vis.on{background:#eef7f0;color:#1f5a33} .vis.off{background:#f3f4f6;color:#4b5563}
 .toast{position:fixed;left:50%;bottom:1.5rem;transform:translate(-50%,20px);background:var(--navy);color:#fff;padding:.8rem 1.3rem;border-radius:4px;border-left:5px solid var(--gold);
   box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:.25s;z-index:100;max-width:90vw}
 .toast.show{opacity:1;transform:translate(-50%,0)}
@@ -170,7 +175,6 @@ a{color:inherit}
   .c-est:before{content:"Online estimate: ";color:var(--muted);font-weight:400}
   .c-act:before{content:"Actual price: ";color:var(--muted);font-weight:400}
   .chev{display:none}
-  .price-grid{grid-template-columns:1fr 1fr}
   .kv{grid-template-columns:1fr}.kv dt{padding-bottom:0}.kv dd{padding-top:.1rem}
   .fields{grid-template-columns:1fr}
   .updated{display:none}
@@ -249,6 +253,9 @@ a{color:inherit}
      ========================================================================== */
   var ENDPOINT = 'https://script.google.com/macros/s/AKfycbzue-DJaMFHPzXlMARjrNjUXORBh2HhdhmbmrKaTR9Nw1WKW1_2ydsr_JQqxZgsi8Tt/exec';
 
+  // Optional: full address of the customer page. Leave empty if track.html sits in the same folder as this page.
+  var TRACK_PAGE = '';
+
   var COMPANY_NAME = 'FCV Restoration & Construction';
   var COMPANY_PHONE = '(313) 293-2280';
   var SESSION_KEY = 'fcv_admin_session';
@@ -262,6 +269,7 @@ a{color:inherit}
     token: null, expiresAt: 0,
     quotes: [], contacts: [], statusOptions: ['New', 'Contacted', 'Site Visit Scheduled', 'Quote Sent', 'Accepted', 'Declined', 'Completed'],
     tab: 'quote', search: '', status: 'all', sort: 'new',
+    priceVisible: ['Quote Sent', 'Accepted', 'Completed'],
     sel: null, editing: false, draft: null, saving: false, loadedAt: null, loading: false, lastFocus: null
   };
 
@@ -290,6 +298,24 @@ a{color:inherit}
     var lo = toNum(r['Estimate Low']), hi = toNum(r['Estimate High']);
     if (lo !== null && hi !== null) return money(lo) + ' - ' + money(hi);
     return t || 'Site visit needed';
+  }
+  function trackLink(r) {
+    var t = r && r['Tracking Token']; if (!t) return '';
+    var base = TRACK_PAGE || (location.href.split('#')[0].split('?')[0].replace(/[^\/]*$/, '') + 'track.html');
+    return base + '?k=' + encodeURIComponent(t);
+  }
+  function dayText(v) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(v || '')); if (!m) return '';
+    return new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  }
+  function copyText(text) {
+    var done = function () { toast('Link copied'); };
+    if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).then(done, fallback); return; }
+    fallback();
+    function fallback() {
+      var ta = document.createElement('textarea'); ta.value = text; ta.style.cssText = 'position:fixed;left:-9999px'; document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) { toast('Could not copy. Select the link and copy it manually.', true); } document.body.removeChild(ta);
+    }
   }
   function cur() { return state.tab === 'contact' ? state.contacts : state.quotes; }
   function find(ref) { var a = cur(); for (var i = 0; i < a.length; i++) if (a[i]['Reference'] === ref) return a[i]; return null; }
@@ -373,6 +399,7 @@ a{color:inherit}
     return api('list').then(function (d) {
       state.quotes = d.quotes || []; state.contacts = d.contacts || [];
       if (d.statusOptions && d.statusOptions.length) state.statusOptions = d.statusOptions;
+      if (d.priceVisibleStatuses && d.priceVisibleStatuses.length) state.priceVisible = d.priceVisibleStatuses;
       state.loadedAt = new Date();
       if (silent && !firstLoad) {
         var n = state.quotes.concat(state.contacts).filter(function (r) { return !before[r['Reference']]; }).length;
@@ -507,6 +534,7 @@ a{color:inherit}
       subject = 'Your quote request ' + ref + ' - ' + COMPANY_NAME;
       if (price !== null) body = 'Hi ' + first + ',\n\nFollowing up on your quote request (' + ref + '). Based on your project details, the price we have put together is ' + money(price) + '.\n\nI would be glad to walk you through it and answer any questions. When is a good time to talk?\n\n' + COMPANY_NAME + '\n' + COMPANY_PHONE;
       else body = 'Hi ' + first + ',\n\nThank you for your quote request (' + ref + '). The online range of ' + estimateText(r) + ' is only a rough estimate, and I would like to go over the details with you and arrange a site visit so we can confirm your actual price.\n\nWhen is a good time to talk?\n\n' + COMPANY_NAME + '\n' + COMPANY_PHONE;
+      if (trackLink(r)) body = body.replace('\n\n' + COMPANY_NAME + '\n', '\n\nYou can follow your request any time here: ' + trackLink(r) + '\n\n' + COMPANY_NAME + '\n');
     }
     return 'mailto:' + encodeURIComponent(r['Email'] || '').replace(/%40/g, '@') + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
   }
@@ -533,7 +561,27 @@ a{color:inherit}
     d.innerHTML = head + actions + (state.editing ? editBody(r, isQ) : viewBody(r, isQ)) + (state.editing ? editFoot() : '');
     $('dClose').onclick = function () { closeDrawer(); };
     var eb = $('dEdit'); if (eb) eb.onclick = startEdit;
+    var cl = $('copyLink'); if (cl) cl.onclick = function () { copyText($('trackLink').value); };
     if (state.editing) wireEdit();
+  }
+
+  function priceVisHtml(status) {
+    var on = state.priceVisible.indexOf(status) !== -1;
+    return '<div class="vis ' + (on ? 'on' : 'off') + '">' + (on
+      ? '<strong>The customer can see the actual price now</strong> (status: ' + esc(status) + ').'
+      : '<strong>The actual price is hidden from the customer for now.</strong> It appears on their page once the status is ' + esc(state.priceVisible.join(', ')) + '.') + '</div>';
+  }
+  function customerViewCard(r) {
+    var link = trackLink(r), msg = r['Client Message'];
+    return '<section class="card"><h3>What the customer sees</h3>' +
+      (link ? '<div class="linkrow"><input id="trackLink" readonly value="' + esc(link) + '" aria-label="Customer tracking link" onfocus="this.select()">' +
+              '<button class="btn btn-ghost" id="copyLink" type="button">Copy link</button>' +
+              '<a class="btn btn-ghost" target="_blank" rel="noopener noreferrer" href="' + esc(link) + '">Open their view</a></div>' +
+              '<p class="hint" style="margin-top:.5rem">Private link to their own page. It was sent in their confirmation email.</p>'
+            : '<p class="muted" style="margin:0">No tracking link for this request yet. Press Refresh.</p>') +
+      priceVisHtml(r['Quote Status'] || 'New') +
+      '<div style="margin-top:.9rem"><div class="k" style="font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:.3rem">Note shown to the customer</div>' +
+      textBlock(msg, 'No note yet. Use Edit to add one.') + '</div></section>';
   }
 
   function viewBody(r, isQ) {
@@ -542,8 +590,10 @@ a{color:inherit}
     html += '<section class="card"><h3>Pricing</h3><div class="price-grid">' +
       (isQ ? '<div><div class="k">Estimate shown to customer</div><div class="v">' + esc(estimateText(r)) + '</div></div>' : '') +
       '<div><div class="k">Actual price</div>' + (price === null ? '<div class="v none">Not set yet</div>' : '<div class="v">' + esc(money(price)) + '</div>') + '</div>' +
+      (isQ ? '<div><div class="k">Work can start from</div>' + (dayText(r['Work Start Date']) ? '<div class="v" style="font-size:1.2rem;padding-top:.2rem">' + esc(dayText(r['Work Start Date'])) + '</div>' : '<div class="v none">Not set yet</div>') + '</div>' : '') +
       '<div><div class="k">Status</div><div style="padding-top:.35rem">' + badge(r['Quote Status']) + '</div></div></div>' +
       (isQ ? '<p class="hint">The website range is only a rough estimate. The customer was told the price can change after the site visit.</p>' : '') + '</section>';
+    if (isQ) html += customerViewCard(r);
     if (isQ) {
       html += '<section class="card"><h3>What they want done' + (r['Item Count'] ? ' (' + esc(r['Item Count']) + ' items)' : '') + '</h3>' +
         (priced.length ? '<ul class="items">' + priced.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '<p class="muted" style="margin:0">No priced items were selected.</p>') +
@@ -564,10 +614,10 @@ a{color:inherit}
   }
 
   /* ----------------------------------------------------------- edit mode */
-  var Q_FIELDS = ['Name', 'Phone', 'Email', 'Best Time to Reach', 'Property Address', 'City', 'ZIP', 'Property Type', 'Finish Level', 'Start Timeline', 'Insurance Claim', 'Notes', 'Quote Status', 'Actual Price', 'Internal Notes'];
+  var Q_FIELDS = ['Name', 'Phone', 'Email', 'Best Time to Reach', 'Property Address', 'City', 'ZIP', 'Property Type', 'Finish Level', 'Start Timeline', 'Insurance Claim', 'Notes', 'Quote Status', 'Actual Price', 'Internal Notes', 'Work Start Date', 'Client Message'];
   var C_FIELDS = ['Name', 'Phone', 'Email', 'Subject', 'Quote Status', 'Actual Price', 'Internal Notes'];
   function fieldList() { return state.tab === 'contact' ? C_FIELDS : Q_FIELDS; }
-  function original(h) { var v = state.sel[h]; if (h === 'Actual Price') { var n = toNum(v); return n === null ? '' : String(n); } return v === null || v === undefined ? '' : String(v); }
+  function original(h) { var v = state.sel[h]; if (h === 'Work Start Date') return String(v || '').slice(0, 10); if (h === 'Actual Price') { var n = toNum(v); return n === null ? '' : String(n); } return v === null || v === undefined ? '' : String(v); }
   function distinct(h) { var seen = {}, out = []; state.quotes.forEach(function (r) { var v = String(r[h] || '').trim(); if (v && !seen[v]) { seen[v] = 1; out.push(v); } }); return out.sort(); }
 
   function inp(h, label, o) {
@@ -575,6 +625,7 @@ a{color:inherit}
     var control;
     if (o.type === 'select') control = '<select id="' + id + '" data-f="' + esc(h) + '">' + state.statusOptions.map(function (s) { return '<option' + (s === v ? ' selected' : '') + '>' + esc(s) + '</option>'; }).join('') + (state.statusOptions.indexOf(v) === -1 ? '<option selected>' + esc(v) + '</option>' : '') + '</select>';
     else if (o.type === 'textarea') control = '<textarea id="' + id + '" data-f="' + esc(h) + '" maxlength="5000">' + esc(v) + '</textarea>';
+    else if (o.type === 'date') control = '<input id="' + id + '" data-f="' + esc(h) + '" type="date" min="2000-01-01" max="2100-12-31" value="' + esc(v) + '">';
     else if (o.type === 'money') control = '<div class="money"><span>$</span><input id="' + id + '" data-f="' + esc(h) + '" inputmode="decimal" autocomplete="off" placeholder="e.g. 12500" value="' + esc(v) + '"></div>';
     else {
       var dl = o.list ? ' list="dl_' + id + '"' : '';
@@ -587,6 +638,9 @@ a{color:inherit}
     var h = '<div class="d-body">';
     h += '<section class="card"><h3>Status &amp; pricing</h3><div class="fields">' + inp('Quote Status', 'Quote status', { type: 'select' }) + inp('Actual Price', 'Actual price', { type: 'money' }) + '</div>' +
       '<p class="hint">Saving writes straight to the Google Sheet.</p></section>';
+    if (isQ) h += '<section class="card"><h3>What the customer sees</h3><div class="fields">' + inp('Work Start Date', 'Work can start from', { type: 'date' }) + '<div class="fld"><label>Actual price is shown when</label><div style="padding:.65rem 0;font-size:.9rem;color:var(--muted)">status is ' + esc(state.priceVisible.join(', ')) + '</div></div>' +
+      inp('Client Message', 'Note shown to the customer (optional)', { type: 'textarea', full: true }) + '</div>' +
+      '<p class="hint">The customer sees these on their private tracking page. Leave the date or note empty to hide it.</p></section>';
     h += '<section class="card"><h3>Internal notes</h3><div class="fields">' + inp('Internal Notes', 'Call notes, follow-ups (team only)', { type: 'textarea', full: true }) + '</div></section>';
     h += '<section class="card"><h3>Customer details</h3><div class="fields">' + inp('Name', 'Name') + inp('Phone', 'Phone', { inputType: 'tel' }) + inp('Email', 'Email', { inputType: 'email' }) +
       (isQ ? inp('Best Time to Reach', 'Best time to reach', { list: true }) : inp('Subject', 'Subject', { list: false })) + '</div></section>';
@@ -594,7 +648,7 @@ a{color:inherit}
       h += '<section class="card"><h3>Property &amp; preferences</h3><div class="fields">' + inp('Property Address', 'Address', { full: true }) + inp('City', 'City') + inp('ZIP', 'ZIP') +
         inp('Property Type', 'Property type', { list: true }) + inp('Finish Level', 'Finish level', { list: true }) + inp('Start Timeline', 'Wants to start', { list: true }) + inp('Insurance Claim', 'Insurance claim', { list: true }) + '</div></section>';
       h += '<section class="card"><h3>Customer notes</h3><div class="fields">' + inp('Notes', 'Notes from the customer', { type: 'textarea', full: true }) + '</div></section>';
-      h += '<div class="locked"><h3>Locked: what the customer submitted</h3><div class="muted" style="font-size:.9rem">Estimate shown: <strong style="color:var(--navy)">' + esc(estimateText(r)) + '</strong>. The selected work, estimate and submission time stay as submitted so there is always a record of what they were shown.</div></div>';
+      h += '<div class="locked"><h3>Locked: what the customer submitted</h3><div class="muted" style="font-size:.9rem">Estimate shown: <strong style="color:var(--navy)">' + esc(estimateText(r)) + '</strong>. The selected work, estimate and submission time stay as submitted so there is always a record of what they were shown. The customer\u2019s private link can\u2019t be edited either.</div></div>';
     } else {
       h += '<div class="locked"><h3>Locked</h3><div class="muted" style="font-size:.9rem">The original message is kept exactly as it was sent.</div></div>';
     }
