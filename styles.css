@@ -6,14 +6,14 @@
         width: auto !important;
       }
       .fda-about-support-main{
-        background-image: url(./Images/Main\ Big\ Image.png) !important;
+        background-image: url(./Images/Main\ Big\ Image.webp) !important;
         background-position: 50%;
         background-repeat: no-repeat;
         background-size: cover;
         background-attachment: fixed;
       }
       .fda-footer{
-        background-image: linear-gradient(rgba(0, 0, 0, 0.90), rgba(0, 0, 0, 0.90)), url(./Images/Footer\ Background.png) !important;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.90), rgba(0, 0, 0, 0.90)), url(./Images/Footer\ Background.webp) !important;
       }
       body{
         overflow-x: hidden !important;
